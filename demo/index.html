@@ -43,12 +43,16 @@
           <caas-document
             id="caasDoc"
             api-endpoint="[[apiEndpoint]]"
-            route="/investors/[[userId]]"
+            route="[[route]]"
             access-token="[[accessToken]]"
-            data="{{data}}"
-            on-data-value-changed="_handleDataChanged"
+            document="{{document}}"
             auto-read
             auto-update
+            auth="{{auth}}"
+            on-read-error="_handleReadError"
+            on-update-error="_handleUpdateError"
+            on-delete-error="_handleDeleteError"
+            on-document-value-changed="_handleDocumentValueChanged"
           ></caas-document>
 
           <template is="dom-if" if="[[!signedIn]]">
@@ -74,19 +78,6 @@
             </form>
           </template>
 
-          <ul>
-          <template is="dom-repeat" items="[[dataAsArray]]">
-            <li>
-              [[item.name]]
-              <input
-                type="text"
-                data-name$="[[item.name]]"
-                value="[[item.value]]"
-                on-input="updateData"
-              ></li>
-          </template>
-          </ul>
-
           <template is="dom-if" if="[[signedIn]]">
             
             <h2>Signed In as [[userRole]] #[[userId]]</h2>
@@ -95,14 +86,36 @@
             </form>
           </template>
 
+          <h2>Get data</h2>
+          <input placeholder="route" type="text" value="{{route::input}}"><br>
+          <label>auth on? <input type="checkbox" checked="{{auth::change}}"></label><br>
 
-        <script>
+          <button on-tap="read">read</button>
+          <button on-tap="update">update</button>
+          <button on-tap="delete">delete</button>
+
+          <h2>Document</h2>
+          <ul>
+          <template is="dom-repeat" items="[[documentAsArray]]">
+            <li>
+              [[item.name]]
+              <input
+                type="text"
+                data-name$="[[item.name]]"
+                value="[[item.value]]"
+                on-input="_handleValueInput"
+              ></li>
+          </template>
+          </ul>
+
+          <script>
             var demo = document.querySelector('#demo');
             var caasDoc = document.querySelector('#caasDoc');
 
             demo.signedIn = false;
             demo.dataAsArray = [];
             demo.userRole = 'investor';
+            demo.route = '/campaigns/724';
             demo.apiEndpoint = 'http://canapi.local';
 
             demo.signIn = function(evt) {
@@ -119,22 +132,42 @@
               auth.signOut();
             }
 
-            demo._handleDataChanged = function(evt, data) {
-              var dataAsArray = [];
-              for(var i in data) {
-                dataAsArray.push({
-                  name: i,
-                  value: data[i]
-                })
-              }
-              demo.dataAsArray = dataAsArray;
-            }
-
-            demo.updateData = function(evt) {
+            demo._handleValueInput = function(evt) {
               var name = evt.target.getAttribute('data-name');
               var value = evt.target.value;
-              caasDoc.set('data.' + name, value);
-              // console.log('updateData', name, value);
+             caasDoc.set('document.' + name, value);
+            }
+
+            demo._handleDocumentValueChanged = function(evt, doc) {
+              var documentAsArray = [];
+              for(var i in doc) {
+                documentAsArray.push({name: i,value: doc[i]})
+              }
+              demo.documentAsArray = documentAsArray;
+            }
+
+            demo.read = function(evt) {
+              caasDoc.read();
+            }
+
+            demo._handleReadError = function(evt, error) {
+              console.warn('read error', error);
+            }
+
+            demo.update = function() {
+              caasDoc.update();
+            }
+
+            demo._handleUpdateError = function(evt, error) {
+              console.warn('update error', error);
+            }
+
+            demo.delete = function(evt) {
+              caasDoc.delete();
+            }
+
+            demo._handleDeleteError = function(evt, error) {
+              console.warn('delete error', error);
             }
           </script>
 

@@ -13,11 +13,11 @@
 
       <iron-ajax
         id="readDocument"
-        headers="[[_authHeader]]"
+        headers="[[_requestHeaders]]"
         url="[[apiEndpoint]]/[[route]]"
         method="GET"
-        last-response="{{data}}"
-        debounce-duration="0"
+        last-response="{{document}}"
+        debounce-duration="[[debounceDuration]]"
         auto="[[autoRead]]"
         loading="{{readingDocument}}"
         on-response="_handleReadResponse"
@@ -26,12 +26,12 @@
 
       <iron-ajax
         id="updateDocument"
-        headers="[[_authHeader]]"
+        headers="[[_requestHeaders]]"
         url="[[apiEndpoint]]/[[route]]"
         method="PUT"
         content-type="application/json"
-        body='[[data]]'
-        debounce-duration="0"
+        body='[[document]]'
+        debounce-duration="[[debounceDuration]]"
         loading="{{updatingDocument}}"
         on-response="_handleUpdateResponse"
         on-error="_handleUpdateResponseError"
@@ -39,11 +39,11 @@
 
       <iron-ajax
         id="deleteDocument"
-        headers="[[_authHeader]]"
+        headers="[[_requestHeaders]]"
         url="[[apiEndpoint]]/[[route]]"
         method="DELETE"
-        body='{"id":[[data.id]]}'
-        debounce-duration="0"
+        body='{"id":[[document.id]]}'
+        debounce-duration="[[debounceDuration]]"
         loading="{{deletingDocument}}"
         on-response="_handleDeleteResponse"
         on-error="_handleDeleteResponseError"
@@ -83,7 +83,7 @@
         },
 
         /**
-        * If true, the `updateDocument` request will trigger automatically when any key in the `data` object changed.
+        * If true, the `updateDocument` request will trigger automatically when any key in the `document` object changed.
         */
         autoUpdate: {
           type: Boolean,
@@ -126,11 +126,22 @@
         },
 
         /**
-        * The data object
+        * The document object
         */
-        data: {
+        document: {
           type: Object,
           notify: true
+        },
+
+        auth: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        _requestHeaders: {
+          type: Object,
+          computed: '_computeRequestHeaders(auth, accessToken, _authHeader)'
         },
 
         _readDebouncer: {
@@ -148,7 +159,7 @@
       },
 
       observers: [
-        '_handleDataChanged(data.*)'
+        '_handleDocumentValueChanged(document.*)'
       ],
 
       read: function() {
@@ -161,6 +172,11 @@
 
       delete: function() {
         this._sendAjaxRequest('delete');
+      },
+
+      _computeRequestHeaders: function(auth, accessToken, _authHeader) {
+        if(!auth || !accessToken) return {};
+        return _authHeader;
       },
 
       _sendAjaxRequest: function(crudOperation) {
@@ -186,8 +202,8 @@
         }
       },
 
-      _handleDataChanged(dataChange) {
-        this.fire('data-value-changed', this.data);
+      _handleDocumentValueChanged(documentChange) {
+        this.fire('document-value-changed', documentChange.base);
         if(this.accessToken && this.autoUpdate) {
           this.update();
         }
@@ -197,24 +213,32 @@
         this.fire('read');
       },
 
-      _handleReadResponseError: function(evt, error) {
-        this.fire('read-error', error);
+      _handleReadResponseError: function(evt) {
+        this.fire('read-error', this._parseErrorObject(evt));
       },
 
       _handleUpdateResponse: function(evt) {
         this.fire('updated');
       },
 
-      _handleUpdateResponseError: function(evt, error) {
-        this.fire('update-error', error);
+      _handleUpdateResponseError: function(evt) {
+        this.fire('update-error', this._parseErrorObject(evt));
       },
 
       _handleDeleteResponse: function(evt) {
         this.fire('deleted');
       },
 
-      _handleDeleteResponseError: function(evt, error) {
-        this.fire('delete-error', error);
+      _handleDeleteResponseError: function(evt) {
+        this.fire('delete-error', this._parseErrorObject(evt));
+      },
+
+      _parseErrorObject: function(responseEvent) {
+        var errorObject = {
+          status: responseEvent.detail.request.status,
+          message: responseEvent.detail.request.xhr.response
+        }
+        return errorObject;
       }
 
     });
