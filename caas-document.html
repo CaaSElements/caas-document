@@ -19,7 +19,7 @@
         last-response="{{document}}"
         debounce-duration="[[debounceDuration]]"
         auto="[[autoRead]]"
-        loading="{{readingDocument}}"
+        loading="{{reading}}"
         on-response="_handleReadResponse"
         on-error="_handleReadResponseError"
       ></iron-ajax>
@@ -32,7 +32,7 @@
         content-type="application/json"
         body='[[document]]'
         debounce-duration="[[debounceDuration]]"
-        loading="{{updatingDocument}}"
+        loading="{{updating}}"
         on-response="_handleUpdateResponse"
         on-error="_handleUpdateResponseError"
       ></iron-ajax>
@@ -44,7 +44,7 @@
         method="DELETE"
         body='{"id":[[document.id]]}'
         debounce-duration="[[debounceDuration]]"
-        loading="{{deletingDocument}}"
+        loading="{{deleting}}"
         on-response="_handleDeleteResponse"
         on-error="_handleDeleteResponseError"
       ></iron-ajax>
@@ -101,7 +101,7 @@
         /**
         * true if the API response of `readDocument` is pending
         */
-        readingDocument: {
+        reading: {
           type: Boolean,
           value: false,
           notify: true
@@ -110,7 +110,7 @@
         /**
         * true if the API response of `updateDocument` is pending
         */
-        updatingDocument: {
+        updating: {
           type: Boolean,
           value: false,
           notify: true
@@ -119,7 +119,7 @@
         /**
         * true if the API response of `deleteDocument` is pending
         */
-        deletingDocument: {
+        deleting: {
           type: Boolean,
           value: false,
           notify: true
