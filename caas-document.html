@@ -1,0 +1,188 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../caas-auth-behavior/caas-auth-behavior.html">
+
+<!--
+`caas-document`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="caas-document">
+  <template>
+
+      <iron-ajax
+        id="readDocument"
+        headers="[[_authHeader]]"
+        url="[[apiEndpoint]]/[[route]]"
+        method="GET"
+        last-response="{{data}}"
+        debounce-duration="[[debounceDuration]]"
+        auto="[[autoRead]]"
+        loading="{{readingDocument}}"
+        on-response="_handleReadResponse"
+        on-error="_handleReadResponseError"
+      ></iron-ajax>
+
+      <iron-ajax
+        id="updateDocument"
+        headers="[[_authHeader]]"
+        url="[[apiEndpoint]]/[[route]]"
+        method="PUT"
+        content-type="application/json"
+        body='[[data]]'
+        debounce-duration="[[debounceDuration]]"
+        loading="{{updatingDocument}}"
+        on-response="_handleUpdateResponse"
+        on-error="_handleUpdateResponseError"
+      ></iron-ajax>
+
+      <iron-ajax
+        id="deleteDocument"
+        headers="[[_authHeader]]"
+        url="[[apiEndpoint]]/[[route]]"
+        method="DELETE"
+        body='{"id":[[data.id]]}'
+        debounce-duration="[[debounceDuration]]"
+        loading="{{deletingDocument}}"
+        on-response="_handleDeleteResponse"
+        on-error="_handleDeleteResponseError"
+      ></iron-ajax>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'caas-document',
+      behaviors: [CaasAuthBehavior],
+
+      properties: {
+
+        /**
+        * The server side API endpoint
+        */
+        apiEndpoint: {
+          type: String,
+          value: null
+        },
+
+        /**
+        * The server route for the requested document
+        */
+        route: {
+          type: String,
+          value: null          
+        },
+
+        /**
+        * If true, the `readDocument` request will trigger automatically
+        */
+        autoRead: {
+          type: Boolean,
+          value: true
+        },
+
+        /**
+        * If true, the `updateDocument` request will trigger automatically when any key in the `data` object changed.
+        */
+        autoUpdate: {
+          type: Boolean,
+          value: true
+        },
+
+        /**
+         * Length of time in milliseconds to debounce multiple automatically generated requests.
+         */
+        debounceDuration: {
+          type: Number,
+          value: 100
+        },
+
+        /**
+        * true if the API response of `readDocument` is pending
+        */
+        readingDocument: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /**
+        * true if the API response of `updateDocument` is pending
+        */
+        updatingDocument: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /**
+        * true if the API response of `deleteDocument` is pending
+        */
+        deletingDocument: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /**
+        * The data object
+        */
+        data: {
+          type: Object,
+          notify: true
+        }
+
+      },
+
+      observers: [
+        '_handleDataChanged(data.*)'
+      ],
+
+      read: function() {
+        this.$.readDocument.generateRequest();
+      },
+
+      update: function() {
+        this.$.updateDocument.generateRequest();
+      },
+
+      delete: function() {
+        this.$.deleteDocument.generateRequest();
+      },
+
+      _handleDataChanged(dataChange) {
+        this.fire('data-value-changed', this.data);
+        if(this.accessToken && this.autoUpdate) {
+          this.update();
+        }
+      },
+
+      _handleReadResponse: function(evt) {
+        this.fire('read');
+      },
+
+      _handleReadResponseError: function(evt, error) {
+        this.fire('read-error', error);
+      },
+
+      _handleUpdateResponse: function(evt) {
+        this.fire('updated');
+      },
+
+      _handleUpdateResponseError: function(evt, error) {
+        this.fire('update-error', error);
+      },
+
+      _handleDeleteResponse: function(evt) {
+        this.fire('deleted');
+      },
+
+      _handleDeleteResponseError: function(evt, error) {
+        this.fire('delete-error', error);
+      }
+
+    });
+  </script>
+</dom-module>
