@@ -5,7 +5,6 @@
 <!--
 `caas-document`
 
-
 @demo demo/index.html 
 -->
 
@@ -18,7 +17,7 @@
         url="[[apiEndpoint]]/[[route]]"
         method="GET"
         last-response="{{data}}"
-        debounce-duration="[[debounceDuration]]"
+        debounce-duration="0"
         auto="[[autoRead]]"
         loading="{{readingDocument}}"
         on-response="_handleReadResponse"
@@ -32,7 +31,7 @@
         method="PUT"
         content-type="application/json"
         body='[[data]]'
-        debounce-duration="[[debounceDuration]]"
+        debounce-duration="0"
         loading="{{updatingDocument}}"
         on-response="_handleUpdateResponse"
         on-error="_handleUpdateResponseError"
@@ -44,7 +43,7 @@
         url="[[apiEndpoint]]/[[route]]"
         method="DELETE"
         body='{"id":[[data.id]]}'
-        debounce-duration="[[debounceDuration]]"
+        debounce-duration="0"
         loading="{{deletingDocument}}"
         on-response="_handleDeleteResponse"
         on-error="_handleDeleteResponseError"
@@ -80,7 +79,7 @@
         */
         autoRead: {
           type: Boolean,
-          value: true
+          value: false
         },
 
         /**
@@ -88,7 +87,7 @@
         */
         autoUpdate: {
           type: Boolean,
-          value: true
+          value: false
         },
 
         /**
@@ -96,7 +95,7 @@
          */
         debounceDuration: {
           type: Number,
-          value: 100
+          value: 300
         },
 
         /**
@@ -132,6 +131,18 @@
         data: {
           type: Object,
           notify: true
+        },
+
+        _readDebouncer: {
+          type: Object
+        },
+
+        _updateDebouncer: {
+          type: Object
+        },
+
+        _deleteDebouncer: {
+          type: Object  
         }
 
       },
@@ -141,15 +152,38 @@
       ],
 
       read: function() {
-        this.$.readDocument.generateRequest();
+        this._sendAjaxRequest('read');
       },
 
       update: function() {
-        this.$.updateDocument.generateRequest();
+        this._sendAjaxRequest('update');
       },
 
       delete: function() {
-        this.$.deleteDocument.generateRequest();
+        this._sendAjaxRequest('delete');
+      },
+
+      _sendAjaxRequest: function(crudOperation) {
+        switch(crudOperation) {
+          case 'read':
+            window.clearTimeout(this._readDebouncer);
+            this._readDebouncer = window.setTimeout((function() {
+              this.$.readDocument.generateRequest();
+            }).bind(this), this.debounceDuration);
+            break;
+          case 'update':
+            window.clearTimeout(this._updateDebouncer);
+            this._updateDebouncer = window.setTimeout((function() {
+              this.$.updateDocument.generateRequest();
+            }).bind(this), this.debounceDuration);
+            break;
+          case 'delete':
+            window.clearTimeout(this._deleteDebouncer);
+            this._deleteDebouncer = window.setTimeout((function() {
+              this.$.deleteDocument.generateRequest();
+            }).bind(this), this.debounceDuration);
+            break;
+        }
       },
 
       _handleDataChanged(dataChange) {

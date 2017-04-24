@@ -47,6 +47,8 @@
             access-token="[[accessToken]]"
             data="{{data}}"
             on-data-value-changed="_handleDataChanged"
+            auto-read
+            auto-update
           ></caas-document>
 
           <template is="dom-if" if="[[!signedIn]]">
