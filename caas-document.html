@@ -133,6 +133,9 @@
           notify: true
         },
 
+        /**
+        * Determines whether auth headers should be sent along with a CRUD request
+        */
         auth: {
           type: Boolean,
           value: false,
@@ -162,14 +165,23 @@
         '_handleDocumentValueChanged(document.*)'
       ],
 
+      /**
+      * Download `document`
+      */
       read: function() {
         this._sendAjaxRequest('read');
       },
 
+      /**
+      * Save `document`
+      */
       update: function() {
         this._sendAjaxRequest('update');
       },
 
+      /**
+      * Delete `document`
+      */
       delete: function() {
         this._sendAjaxRequest('delete');
       },
@@ -240,6 +252,51 @@
         }
         return errorObject;
       }
+
+      /**
+       * Fired when a read response is received.
+       *
+       * @event read
+       */
+
+      /**
+       * Fired when a read error is received.
+       *
+       * @event read-error
+       * @param {Object} error `{status: number, message: Object}`
+       * @param {number} error.status Status Code
+       * @param {Object} error.message Error message
+       */
+
+      /**
+       * Fired when an update response is received.
+       *
+       * @event update
+       */
+
+      /**
+       * Fired when an update error is received.
+       *
+       * @event update-error
+       * @param {Object} error `{status: number, message: Object}`
+       * @param {number} error.status Status Code
+       * @param {Object} error.message Error message
+       */
+
+      /**
+       * Fired when an delete response is received.
+       *
+       * @event delete
+       */
+
+      /**
+       * Fired when a delete error is received.
+       *
+       * @event delete-error
+       * @param {Object} error `{status: number, message: Object}`
+       * @param {number} error.status Status Code
+       * @param {Object} error.message Error message
+       */
 
     });
   </script>
