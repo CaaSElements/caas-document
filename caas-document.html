@@ -75,7 +75,7 @@
         },
 
         /**
-        * If true, the `readDocument` request will trigger automatically
+        * If true, `read()` will be called automatically
         */
         autoRead: {
           type: Boolean,
@@ -83,7 +83,7 @@
         },
 
         /**
-        * If true, the `updateDocument` request will trigger automatically when any key in the `document` object changed.
+        * If true, `update()` will be called when any value in the `document` object changed.
         */
         autoUpdate: {
           type: Boolean,
@@ -99,7 +99,7 @@
         },
 
         /**
-        * true if the API response of `readDocument` is pending
+        * true if the response of `read()` is pending
         */
         reading: {
           type: Boolean,
@@ -108,7 +108,7 @@
         },
 
         /**
-        * true if the API response of `updateDocument` is pending
+        * true if the response of `update()` is pending
         */
         updating: {
           type: Boolean,
@@ -117,7 +117,7 @@
         },
 
         /**
-        * true if the API response of `deleteDocument` is pending
+        * true if the response of `delete()` is pending
         */
         deleting: {
           type: Boolean,
