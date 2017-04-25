@@ -4,7 +4,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.8.0",
     "iron-ajax": "PolymerElements/iron-ajax",
-    "caas-auth-behavior": "CaaSElements/caas-auth-behavior"
+    "caas-crud-behavior": "CaaSElements/caas-crud-behavior"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
