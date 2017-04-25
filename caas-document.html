@@ -186,6 +186,15 @@
         this._sendAjaxRequest('delete');
       },
 
+      /**
+      * Notify all properties
+      */
+      notifyProperties: function() {
+        for(var i in this.document) {
+          this.notifyPath('document.' + i, this.document[i]);
+        }
+      },
+
       _computeRequestHeaders: function(auth, accessToken, _authHeader) {
         if(!auth || !accessToken) return {};
         return _authHeader;
@@ -215,7 +224,8 @@
       },
 
       _handleDocumentValueChanged(documentChange) {
-        this.fire('document-value-changed', documentChange.base);
+        this.notifyProperties();
+        this.fire('document-value-changed', documentChange);
         if(this.accessToken && this.autoUpdate) {
           this.update();
         }
