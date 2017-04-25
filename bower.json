@@ -3,6 +3,7 @@
   "main": "caas-document.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.8.0",
+    "iron-ajax": "PolymerElements/iron-ajax",
     "caas-auth-behavior": "CaaSElements/caas-auth-behavior"
   },
   "devDependencies": {
