@@ -186,12 +186,10 @@
         this._sendAjaxRequest('delete');
       },
 
-      /**
-      * Notify all properties
-      */
-      notifyProperties: function() {
-        for(var i in this.document) {
-          this.notifyPath('document.' + i, this.document[i]);
+      notifyProperties: function(properties) {
+        var properties = properties || Object.keys(this.document);
+        for(var i in properties) {
+          this.notifyPath('document.' + properties[i], this.document[properties[i]]);
         }
       },
 
@@ -211,6 +209,7 @@
           case 'update':
             window.clearTimeout(this._updateDebouncer);
             this._updateDebouncer = window.setTimeout((function() {
+              console.log('poep');
               this.$.updateDocument.generateRequest();
             }).bind(this), this.debounceDuration);
             break;
